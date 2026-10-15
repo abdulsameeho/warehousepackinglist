@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EUTCO Logistics | Warehouse Packing List</title>
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<header class="app-header no-print">
+  <div class="brand"><div class="brand-mark">E</div><div><h1>EUTCO Logistics</h1><p>Warehouse packing list</p></div></div>
+  <div class="header-actions">
+    <button class="outline" id="newBtn">＋ New packing list</button>
+    <button class="outline" id="saveBtn">Save draft</button>
+    <button class="outline" id="backupBtn">Export backup</button>
+    <button class="primary" id="printBtn">Print / Save PDF ↗</button>
+  </div>
+</header>
+<div id="printReport" class="print-report" aria-hidden="true"></div>
+<main class="container">
+  <!-- <div class="intro"><div><h2>Packing list workspace</h2><p>Create, organize and export pallet-level shipment details.</p></div><div class="status" id="saveStatus">Changes saved in this browser</div></div> -->
+  <div class="stats">
+    <div class="stat"><div class="stat-top">Packing list number</div><div class="stat-num" id="statNumber" style="font-size:21px">EUT-PL-0001</div><div class="stat-note">Automatically assigned</div></div>
+    <div class="stat"><div class="stat-top">Total pallets</div><div class="stat-num" id="statPallets">0</div><div class="stat-note">Unique pallet IDs</div></div>
+    <div class="stat"><div class="stat-top">Total pieces</div><div class="stat-num" id="statPieces">0</div><div class="stat-note">Sum of pallet quantities</div></div>
+    <div class="stat"><div class="stat-top">BOE references</div><div class="stat-num" id="statBoe">0</div><div class="stat-note">Declared BOE numbers</div></div>
+  </div>
+  <div class="print-only"><div class="print-title">EUTCO Logistics — Warehouse Packing List</div><div class="print-subtitle">Shipment and pallet details</div></div>
+  <section class="panel">
+    <div class="panel-head"><div class="panel-title"><div class="step">01</div><div><h3>Shipment information</h3><p>Core reference details for this packing list</p></div></div><span class="pill">AUTO NUMBERED</span></div>
+    <div class="panel-body">
+      <div class="fields">
+        <div class="field"><label>Packing list number</label><input id="packingNo" readonly></div>
+        <div class="field"><label>Date</label><input id="packingDate" type="date"></div>
+        <div class="field span2"><label>Customer / company name</label><input id="customer" list="customerOptions" placeholder="Type a new customer or choose saved name"><datalist id="customerOptions"></datalist><div class="hint">New names are saved automatically when you leave this field.</div></div>
+        <div class="field"><label>Prepared by</label><input id="preparedBy" list="preparedOptions" placeholder="Type a name or choose saved name"><datalist id="preparedOptions"></datalist><div class="hint">New names are saved automatically when you leave this field.</div></div>
+        <div class="field span3"><label>Notes / shipment reference (optional)</label><input id="notes" placeholder="Container, shipment reference, handling notes…"></div>
+      </div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div class="panel-title"><div class="step">02</div><div><h3>BOE references</h3><p>Add one or more Bills of Entry for this shipment</p></div></div></div>
+    <div class="panel-body">
+      <div class="inline-add no-print"><input id="boeInput" placeholder="Enter BOE number and press Add"><button class="primary" id="addBoeBtn">＋ Add BOE</button></div>
+      <div class="boe-list" id="boeList"></div>
+      <div class="hint" style="margin-top:9px">Total BOE references: <strong id="boeCount">0</strong></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div class="panel-title"><div class="step">03</div><div><h3>Item catalogue</h3><p>Define each model and part number once, then select them on any pallet</p></div></div><button class="primary no-print" id="addItemBtn">＋ Add item</button></div>
+    <div class="panel-body">
+      <!-- <div class="helper-banner"><strong>How totals work:</strong> Catalogue rows identify your items. The shipment's total pieces are calculated from quantities assigned to pallets, so each physical piece is counted once.</div> -->
+      <div class="table-wrap"><table><thead><tr><th style="width:28%">Model / item name</th><th style="width:28%">Part number</th><th>Description (optional)</th><th style="width:90px">Total qty</th><th class="no-print" style="width:75px">Action</th></tr></thead><tbody id="catalogueBody"></tbody></table></div>
+      <div class="empty" id="catalogueEmpty">No items yet. Add your first model above.</div>
+    </div>
+  </section>
+  <section class="panel pallets-panel">
+    <div class="panel-head"><div class="panel-title"><div class="step">04</div><div><h3>Pallet breakdown</h3><p>Each pallet can contain multiple models and part numbers</p></div></div><div class="item-actions no-print"><button class="secondary" id="duplicateManyBtn">Duplicate selected…</button><button class="primary" id="addPalletBtn">＋ Add pallet</button></div></div>
+    <div class="panel-body" id="palletsBody"><div class="empty">No pallets yet. Add a pallet to start assigning items.</div></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div class="panel-title"><div class="step">05</div><div><h3>Shipment summary</h3><p>Totals update automatically as you edit pallet contents</p></div></div></div>
+    <div class="panel-body"><div class="fields">
+      <div class="field"><label>Total pallets</label><input id="summaryPallets" readonly value="0"></div>
+      <div class="field"><label>Total pieces / quantity</label><input id="summaryPieces" readonly value="0"></div>
+      <div class="field"><label>BOE count</label><input id="summaryBoe" readonly value="0"></div>
+      <div class="field"><label>Unique item models</label><input id="summaryModels" readonly value="0"></div>
+    </div></div>
+  </section>
+  <div class="bottom-actions no-print"><button class="outline" id="csvBtn">Download Excel-compatible CSV</button><button class="outline" id="jsonBtn">Download editable data (JSON)</button><button class="secondary" id="saveBtnBottom">Save draft</button><button class="primary" id="printBtnBottom">Print / Save as PDF</button></div>
+  <div class="footer-note">EUTCO Logistics · Warehouse packing list · Draft data is stored locally in this browser on this computer.</div>
+</main>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="copyModal"><div class="modal"><div class="panel-head"><div><h3>Duplicate pallets</h3><p>Choose how many copies to make</p></div><button class="secondary small" id="closeCopy">✕</button></div><div class="panel-body"><div class="field"><label>Source pallet</label><select id="sourcePallet"></select></div><div class="field" style="margin-top:14px"><label>Number of additional copies</label><input id="copyCount" type="number" min="1" max="100" value="9"></div><p class="hint">Copies include all items and quantities. Each copy receives a new automatic pallet number and can be edited independently.</p></div><div class="modal-actions"><button class="secondary" id="cancelCopy">Cancel</button><button class="primary" id="confirmCopy">Create copies</button></div></div></div>
+<script src="app.js"></script>
+
+</body>
+</html>
